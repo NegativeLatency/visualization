@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    </head>
-    <body>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+    <div class="selectCurve">
+        <select class="select">
+            <option>curveCardinal</option>
+            <option>curveLinear</option>
+            <option>curveBasis</option>
+            <option>curveStep</option>
+            <option>curveNatural</option>
+        </select>
+    </div>
+    <div class="addChart">
+        <form class="chooseAttr">
+            <div class="chooseProtocal">
+                <label><input name="protocal" type="radio" value="RTMP"> <i>RTMP</i></label>
+                <label><input name="protocal" type="radio" value="HLS" checked> <i>HLS</i></label>
+            </div>
+            <div class="chooseCondition">
+                <label><input name="condition" type="radio" value="worst"> <i>worst</i></label>
+                <label><input name="condition" type="radio" value="optimal" checked> <i>optimal</i></label>
+            </div>
+        </form>
+        <button class="addBtn" type="button">Add a chart</button>
+    </div>
+    <div class="charts">
         
-    </body>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="./js/index.js"></script>
+    </div>
+</body>
+<!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+<script src="./js/index.js"></script>
+
 </html>
