@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "start": "npx parcel index.html"
+        "start": "npx parcel index.html",
+        "build": "rm -rf public && npx parcel build index.html && mkdir public && mv dist/* public/ && rm -rf dist/"
     },
     "devDependencies": {
         "parcel": "^1.12.4"
