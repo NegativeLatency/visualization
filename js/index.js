@@ -63,6 +63,8 @@ function foo(n, condition, protocals) {
 }
 const createChart = function(className, condition, protocals) {
 
+    if (className.slice(0, 3) == "sub") { let height = height * 2; }
+
     var data = foo(200, condition, protocals);
 
     // svg
@@ -132,7 +134,7 @@ const createChart = function(className, condition, protocals) {
 
 createChart("main", "optimal", ["RTMP", "HLS"]);
 
-height *= 2;
+// height *= 2;
 
 document.querySelector(".addBtn").addEventListener("click", addNewChart);
 
