@@ -64,7 +64,14 @@ function foo(condition, protocals) {
     return res;
 }
 const createChart = function(className, condition, protocals) {
+<<<<<<< HEAD
     let data = foo(condition, protocals);
+=======
+
+    if (className.slice(0, 3) == "sub") { let height = height * 2; }
+
+    var data = foo(200, condition, protocals);
+>>>>>>> ee23e5a0312f97435fccc6bb087576b0437fa7c0
 
     // svg
     let x = d3.scaleUtc()
@@ -133,7 +140,7 @@ const protocals = Object.keys(preparedData);
 const conditions = Object.keys(preparedData[protocals[0]]);
 createChart("main", conditions[0], protocals);
 
-height *= 2;
+// height *= 2;
 
 document.querySelector(".addBtn").addEventListener("click", addNewChart);
 
