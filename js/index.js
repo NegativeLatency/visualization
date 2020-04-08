@@ -28,7 +28,7 @@ var margin = ({
     top: 20,
     right: 20,
     bottom: 30,
-    left: 30
+    left: 50
 })
 
 var height = 300,
@@ -47,7 +47,7 @@ var now = Date.now();
 function foo(condition, protocals) {
     let times = [],
         res = {
-            y: "latency (s)",
+            y: "latency (ms)",
             series: []
         };
     
@@ -64,14 +64,7 @@ function foo(condition, protocals) {
     return res;
 }
 const createChart = function(className, condition, protocals) {
-<<<<<<< HEAD
     let data = foo(condition, protocals);
-=======
-
-    if (className.slice(0, 3) == "sub") { let height = height * 2; }
-
-    var data = foo(200, condition, protocals);
->>>>>>> ee23e5a0312f97435fccc6bb087576b0437fa7c0
 
     // svg
     let x = d3.scaleUtc()
