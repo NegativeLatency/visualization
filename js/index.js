@@ -1,4 +1,14 @@
+import data from './spectator-test-1.json'
+
 var chartNum = 0;
+
+const promisedJson = (jsonFile) => {
+    return new Promise((resolve, reject) => {
+        d3.json(jsonFile, (it) => {
+            resolve(it);
+        });
+    });
+}
 
 // helper functions
 const reveal = path => path.transition()
@@ -24,55 +34,45 @@ var margin = ({
 var height = 300,
     width = 900;
 
-// set data
-var fake = Object({
-    "RTMP": {
-        optimal: [5, 7],
-        worst: [10, 13]
-    },
-    "HLS": {
-        optimal: [7, 9],
-        worst: [14, 17]
-    }
+console.log(data)
+let preparedData = {}
+data.forEach((it) => {
+    preparedData[it.key] = {optimal: it.data}
 });
+
 
 
 var now = Date.now();
 
-function foo(n, condition, protocals) {
+function foo(condition, protocals) {
     let times = [],
         res = {
             y: "latency (s)",
             series: []
         };
-    for (let i = 0; i < n; i++) {
-        times.push(now + 1000 * i);
-    }
-    res.dates = times;
+    
+    res.range = d3.extent(preparedData[protocals[0]][condition].map((it) => it[1]));
+    res.dates = preparedData[protocals[0]][condition].map((it) => it[1]);
     protocals.forEach(item => {
-        let temp = [];
-        for (let i = 0; i < n; i++) {
-            temp.push(d3.randomUniform(fake[item][condition][0], fake[item][condition][1])());
-        }
+        let temp = preparedData[item][condition].map((it) => it[0]);
         res.series.push({
             name: item,
             values: temp
         });
+        console.log(res)
     })
     return res;
 }
 const createChart = function(className, condition, protocals) {
-
-    var data = foo(200, condition, protocals);
+    let data = foo(condition, protocals);
 
     // svg
     let x = d3.scaleUtc()
-        .domain(d3.extent(data.dates))
+        .domain(data.range)
         .range([margin.left, width - margin.right])
 
     let y = d3.scaleLinear()
-        // .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
-        .domain([0, 20]).nice()
+        .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
         .range([height - margin.bottom, margin.top])
 
     let xAxis = g => g
@@ -97,7 +97,7 @@ const createChart = function(className, condition, protocals) {
 
         let line = d3.line()
             .defined(d => !isNaN(d))
-            .x((d, i) => x(data.dates[i]))
+            .x((d, i) =>  x(data.dates[i]))
             .y(d => y(d))
             .curve(d3[curve])
 
@@ -111,7 +111,7 @@ const createChart = function(className, condition, protocals) {
 
         svg.append("g")
             .call(yAxis);
-
+        console.log(data.series)
         svg.append("g")
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
@@ -129,8 +129,9 @@ const createChart = function(className, condition, protocals) {
     }
     updateChart();
 }
-
-createChart("main", "optimal", ["RTMP", "HLS"]);
+const protocals = Object.keys(preparedData);
+const conditions = Object.keys(preparedData[protocals[0]]);
+createChart("main", conditions[0], protocals);
 
 height *= 2;
 
@@ -144,8 +145,7 @@ function addNewChart() {
     createChart("sub-"+chartNum, newChartcondition, [newChartProtocal]);
 }
 
-const protocals = Object.keys(fake);
-const conditions = Object.keys(fake[protocals[0]]);
+
 const protocalArea = document.getElementById("protocalArea");
 const conditionArea = document.getElementById("conditionArea");
 const createInputHTML = (protocal, condition) => {
