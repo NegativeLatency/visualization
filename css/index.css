@@ -18,3 +18,17 @@ div[class^="sub"] {
   box-sizing: border-box;
   width: 50vw;
 }
+
+.panel {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.selectCurve {
+  align-self: center;
+}
+
+.addChart {
+  display: flex;
+  flex-direction: column;
+}

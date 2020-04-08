@@ -1,8 +1,7 @@
-const d3 = require("d3");
 var chartNum = 0;
 
 // helper functions
-reveal = path => path.transition()
+const reveal = path => path.transition()
     .duration(3000)
     .ease(d3.easeLinear)
     .attrTween("stroke-dasharray", function () {
@@ -35,9 +34,8 @@ var fake = Object({
         optimal: [7, 9],
         worst: [14, 17]
     }
-})
+});
 
-var protocals = ["RTMP", "HLS"];
 
 var now = Date.now();
 
@@ -63,25 +61,25 @@ function foo(n, condition, protocals) {
     })
     return res;
 }
-createChart = function(className, condition, protocals) {
+const createChart = function(className, condition, protocals) {
 
     var data = foo(200, condition, protocals);
 
     // svg
-    x = d3.scaleUtc()
+    let x = d3.scaleUtc()
         .domain(d3.extent(data.dates))
         .range([margin.left, width - margin.right])
 
-    y = d3.scaleLinear()
+    let y = d3.scaleLinear()
         // .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
         .domain([0, 20]).nice()
         .range([height - margin.bottom, margin.top])
 
-    xAxis = g => g
+    let xAxis = g => g
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
 
-    yAxis = g => g
+    let yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y))
         .call(g => g.select(".domain").remove())
@@ -97,7 +95,7 @@ createChart = function(className, condition, protocals) {
         var curve = curveSelector.options[curveSelector.selectedIndex].text;
         // console.log(curve)
 
-        line = d3.line()
+        let line = d3.line()
             .defined(d => !isNaN(d))
             .x((d, i) => x(data.dates[i]))
             .y(d => y(d))
@@ -114,7 +112,7 @@ createChart = function(className, condition, protocals) {
         svg.append("g")
             .call(yAxis);
 
-        const path = svg.append("g")
+        svg.append("g")
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
             .attr("stroke-linejoin", "round")
@@ -144,4 +142,22 @@ function addNewChart() {
     var newChartProtocal = newChartAttr.elements.protocal.value;
     var newChartcondition = newChartAttr.elements.condition.value;
     createChart("sub-"+chartNum, newChartcondition, [newChartProtocal]);
+}
+
+const protocals = Object.keys(fake);
+const conditions = Object.keys(fake[protocals[0]]);
+const protocalArea = document.getElementById("protocalArea");
+const conditionArea = document.getElementById("conditionArea");
+const createInputHTML = (protocal, condition) => {
+    const protocolHTML = protocal ? `<label><input name="protocal" type="radio" value="${protocal}"> <i>${protocal}</i></label>` : "";
+    const conditionHTML = condition ?  `<label><input name="condition" type="radio" value="${condition}"> <i>${condition}</i></label>`: "";
+    protocalArea.innerHTML += protocolHTML;
+    conditionArea.innerHTML += conditionHTML;
+}
+
+for (const p of protocals) {
+    createInputHTML(p, null);
+}
+for (const c of conditions) {
+    createInputHTML(null, c);
 }

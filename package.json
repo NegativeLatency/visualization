@@ -4,5 +4,8 @@
     },
     "devDependencies": {
         "parcel": "^1.12.4"
+    },
+    "dependencies": {
+        "d3": "^5.15.1"
     }
 }

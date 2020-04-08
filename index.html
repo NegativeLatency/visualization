@@ -7,33 +7,32 @@
 </head>
 
 <body>
-    <div class="selectCurve">
-        <select class="select">
-            <option>curveCardinal</option>
-            <option>curveLinear</option>
-            <option>curveBasis</option>
-            <option>curveStep</option>
-            <option>curveNatural</option>
-        </select>
+    <div class="panel">
+        <div class="selectCurve">
+            <select class="select">
+                <option>curveCardinal</option>
+                <option>curveLinear</option>
+                <option>curveBasis</option>
+                <option>curveStep</option>
+                <option>curveNatural</option>
+            </select>
+        </div>
+        <div class="addChart">
+            <form class="chooseAttr">
+                <div id="protocalArea" class="chooseProtocal">
+                </div>
+                <div id="conditionArea" class="chooseCondition">
+                </div>
+            </form>
+            <button class="addBtn" type="button">Add a chart</button>
+        </div>
     </div>
-    <div class="addChart">
-        <form class="chooseAttr">
-            <div class="chooseProtocal">
-                <label><input name="protocal" type="radio" value="RTMP"> <i>RTMP</i></label>
-                <label><input name="protocal" type="radio" value="HLS" checked> <i>HLS</i></label>
-            </div>
-            <div class="chooseCondition">
-                <label><input name="condition" type="radio" value="worst"> <i>worst</i></label>
-                <label><input name="condition" type="radio" value="optimal" checked> <i>optimal</i></label>
-            </div>
-        </form>
-        <button class="addBtn" type="button">Add a chart</button>
-    </div>
+
     <div class="charts">
         
     </div>
 </body>
-<!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="./js/index.js"></script>
 
 </html>
