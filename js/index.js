@@ -22,6 +22,7 @@ const reveal = path => path.transition()
 function colors(i) {
     return ["steelblue", "orangered"][i]
 }
+
 function hover(svg, path, data, x, y) {
 
     const pathStroke = path.attr("stroke");
@@ -49,18 +50,16 @@ function hover(svg, path, data, x, y) {
         .attr("y", -8);
   
     function moved() {
-      d3.event.preventDefault();
-      const ym = y.invert(d3.event.layerY);
-      const xm = x.invert(d3.event.layerX);
-    //   console.log(xm, ym)
-      const i1 = d3.bisectLeft(data.dates, xm, 1);
-      const i0 = i1 - 1;
-      const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
-      const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
-      console.log(s)
-    //   path.attr("stroke", d => d === s ? pathStroke : "#ddd").filter(d => d === s).raise();
-      dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
-      dot.select("text").text(s.name);
+        d3.event.preventDefault();
+        const ym = y.invert(d3.event.layerY);
+        const xm = x.invert(d3.event.layerX);
+        const i1 = d3.bisectLeft(data.dates, xm, 1);
+        const i0 = i1 - 1;
+        const i = (xm - data.dates[i0] > data.dates[i1] - xm) ? i1 : i0;
+        const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
+        //   path.attr("stroke", d => d === s ? pathStroke : "#ddd").filter(d => d === s).raise();
+        dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
+        dot.select("text").text(s.name);
     }
   
     function entered() {
@@ -82,8 +81,8 @@ var margin = ({
     left: 50
 })
 
-var height = 300,
-    width = 900;
+// var height = 300,
+//     width = window.innerWidth;
 
 console.log(data)
 let preparedData = {}
@@ -114,31 +113,35 @@ function foo(condition, protocals) {
 }
 const createChart = function(className, condition, protocals) {
     let data = foo(condition, protocals);
+    
+    function updateChart(isRevealed) {
+        let height = 500, width = window.innerWidth;
+        if (className.slice(0, 3) == "sub") { width /= 2; }
+        
+        // svg
+        let x = d3.scaleLinear()
+            .domain(data.range)
+            // .domain(d3.extent(data.dates))
+            .range([margin.left, width - margin.right])
 
-    // svg
-    let x = d3.scaleLinear()
-        .domain(data.range)
-        .range([margin.left, width - margin.right])
+        let y = d3.scaleLinear()
+            .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
+            .range([height - margin.bottom, margin.top])
 
-    let y = d3.scaleLinear()
-        .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
-        .range([height - margin.bottom, margin.top])
+        let xAxis = g => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
 
-    let xAxis = g => g
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+        let yAxis = g => g
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y))
+            .call(g => g.select(".domain").remove())
+            .call(g => g.select(".tick:last-of-type text").clone()
+                .attr("x", 3)
+                .attr("text-anchor", "start")
+                .attr("font-weight", "bold")
+                .text(data.y))
 
-    let yAxis = g => g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y))
-        .call(g => g.select(".domain").remove())
-        .call(g => g.select(".tick:last-of-type text").clone()
-            .attr("x", 3)
-            .attr("text-anchor", "start")
-            .attr("font-weight", "bold")
-            .text(data.y))
-
-    function updateChart() {
         var curveSelector = document.querySelector(".select");
         curveSelector.addEventListener("change", updateChart);
         var curve = curveSelector.options[curveSelector.selectedIndex].text;
@@ -160,7 +163,7 @@ const createChart = function(className, condition, protocals) {
 
         svg.append("g")
             .call(yAxis);
-        console.log(data.series)
+        // console.log(data.series)
         
         const path = svg.append("g")
             .attr("fill", "none")
@@ -175,10 +178,13 @@ const createChart = function(className, condition, protocals) {
             .attr("stroke", function (d, i) {
                 return colors(i);
             })
-            .call(reveal);
+        
+        if (! isRevealed) { path.call(reveal) }
         svg.call(hover, path, data, x, y);
     }
-    updateChart();
+    updateChart(false);
+
+    window.addEventListener("resize", updateChart, true)
 }
 const protocals = Object.keys(preparedData);
 const conditions = Object.keys(preparedData[protocals[0]]);
