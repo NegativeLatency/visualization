@@ -37,12 +37,9 @@ var height = 300,
 console.log(data)
 let preparedData = {}
 data.forEach((it) => {
-    preparedData[it.key] = {optimal: it.data}
+    preparedData[it.type] = {optimal: it.data}
 });
 
-
-
-var now = Date.now();
 
 function foo(condition, protocals) {
     let times = [],
@@ -51,10 +48,11 @@ function foo(condition, protocals) {
             series: []
         };
     
-    res.range = d3.extent(preparedData[protocals[0]][condition].map((it) => it[1]));
-    res.dates = preparedData[protocals[0]][condition].map((it) => it[1]);
+    res.range = [0, preparedData[protocals[0]][condition].length]
+    res.dates = preparedData[protocals[0]][condition].map((it, idx) => idx)
     protocals.forEach(item => {
-        let temp = preparedData[item][condition].map((it) => it[0]);
+        console.log(preparedData[item][condition])
+        let temp = preparedData[item][condition].map((it) => it.delay);
         res.series.push({
             name: item,
             values: temp
@@ -67,7 +65,7 @@ const createChart = function(className, condition, protocals) {
     let data = foo(condition, protocals);
 
     // svg
-    let x = d3.scaleUtc()
+    let x = d3.scaleLinear()
         .domain(data.range)
         .range([margin.left, width - margin.right])
 
