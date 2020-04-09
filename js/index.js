@@ -59,7 +59,7 @@ function hover(svg, path, data, x, y) {
         const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
         path.attr("stroke", (d, i) => d === s ? colors(i) : "#ddd").filter(d => d === s).raise();
         dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
-        dot.select("text").text(s.name);
+        dot.select("text").text(`${s.name} ${s.values[i]}`);
     }
 
     function entered() {
