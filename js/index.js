@@ -57,19 +57,21 @@ function hover(svg, path, data, x, y) {
         const i0 = i1 - 1;
         const i = (xm - data.dates[i0] > data.dates[i1] - xm) ? i1 : i0;
         const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
-        //   path.attr("stroke", d => d === s ? pathStroke : "#ddd").filter(d => d === s).raise();
+        path.attr("stroke", (d, i) => d === s ? colors(i) : "#ddd").filter(d => d === s).raise();
         dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
         dot.select("text").text(s.name);
     }
   
     function entered() {
-    //   path.style("mix-blend-mode", null).attr("stroke", "#ddd");
-      dot.attr("display", null);
+        path.style("mix-blend-mode", null).attr("stroke", "#ddd");
+        dot.attr("display", null);
     }
   
     function left() {
-    //   path.style("mix-blend-mode", "multiply").attr("stroke", pathStroke);
-      dot.attr("display", "none");
+        path.style("mix-blend-mode", "multiply").attr("stroke", function (d, i) {
+            return colors(i);
+        });
+        dot.attr("display", "none");
     }
 }
 
@@ -83,8 +85,14 @@ var margin = ({
 
 // var height = 300,
 //     width = window.innerWidth;
+data[0].data.forEach(val => {
+    // console.log(val)
+    let nv = {...val}
+    nv.delay += 2000;
+    data[1].data.push(nv)
+})
 
-console.log(data)
+console.log("data", data)
 let preparedData = {}
 data.forEach((it) => {
     preparedData[it.type] = {optimal: it.data}
@@ -178,6 +186,7 @@ const createChart = function(className, condition, protocals) {
             .attr("stroke", function (d, i) {
                 return colors(i);
             })
+        // console.log(path.attr("stroke"))
         
         if (! isRevealed) { path.call(reveal) }
         svg.call(hover, path, data, x, y);
