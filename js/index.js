@@ -26,7 +26,7 @@ function colors(i) {
 function hover(svg, path, data, x, y) {
 
     const pathStroke = path.attr("stroke");
-  
+
     if ("ontouchstart" in document) svg
         .style("-webkit-tap-highlight-color", "transparent")
         .on("touchmove", moved)
@@ -36,19 +36,19 @@ function hover(svg, path, data, x, y) {
         .on("mousemove", moved)
         .on("mouseenter", entered)
         .on("mouseleave", left);
-  
+
     const dot = svg.append("g")
         .attr("display", "none");
-  
+
     dot.append("circle")
         .attr("r", 2.5);
-  
+
     dot.append("text")
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
         .attr("text-anchor", "middle")
         .attr("y", -8);
-  
+
     function moved() {
         d3.event.preventDefault();
         const ym = y.invert(d3.event.layerY);
@@ -61,12 +61,12 @@ function hover(svg, path, data, x, y) {
         dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
         dot.select("text").text(s.name);
     }
-  
+
     function entered() {
         path.style("mix-blend-mode", null).attr("stroke", "#ddd");
         dot.attr("display", null);
     }
-  
+
     function left() {
         path.style("mix-blend-mode", "multiply").attr("stroke", function (d, i) {
             return colors(i);
@@ -87,7 +87,9 @@ var margin = ({
 //     width = window.innerWidth;
 data[0].data.forEach(val => {
     // console.log(val)
-    let nv = {...val}
+    let nv = {
+        ...val
+    }
     nv.delay += 2000;
     data[1].data.push(nv)
 })
@@ -95,7 +97,9 @@ data[0].data.forEach(val => {
 console.log("data", data)
 let preparedData = {}
 data.forEach((it) => {
-    preparedData[it.type] = {optimal: it.data}
+    preparedData[it.type] = {
+        optimal: it.data
+    }
 });
 
 
@@ -105,7 +109,7 @@ function foo(condition, protocals) {
             y: "latency (ms)",
             series: []
         };
-    
+
     res.range = [0, preparedData[protocals[0]][condition].length]
     res.dates = preparedData[protocals[0]][condition].map((it, idx) => idx)
     protocals.forEach(item => {
@@ -119,13 +123,16 @@ function foo(condition, protocals) {
     })
     return res;
 }
-const createChart = function(className, condition, protocals) {
+const createChart = function (className, condition, protocals) {
     let data = foo(condition, protocals);
-    
+
     function updateChart(isRevealed) {
-        let height = 500, width = window.innerWidth;
-        if (className.slice(0, 3) == "sub") { width /= 2; }
-        
+        let height = 500,
+            width = window.innerWidth;
+        if (className.slice(0, 3) == "sub") {
+            width /= 2;
+        }
+
         // svg
         let x = d3.scaleLinear()
             .domain(data.range)
@@ -157,11 +164,11 @@ const createChart = function(className, condition, protocals) {
 
         let line = d3.line()
             .defined(d => !isNaN(d))
-            .x((d, i) =>  x(data.dates[i]))
+            .x((d, i) => x(data.dates[i]))
             .y(d => y(d))
             .curve(d3[curve])
 
-        d3.select(".charts").selectAll("."+className).remove();
+        d3.select(".charts").selectAll("." + className).remove();
         const svg = d3.select(".charts").append("div").attr("class", className).attr("data-idx", chartNum).append("svg")
             .attr("viewBox", [0, 0, width, height])
             .style("overflow", "visible");
@@ -172,7 +179,7 @@ const createChart = function(className, condition, protocals) {
         svg.append("g")
             .call(yAxis);
         // console.log(data.series)
-        
+
         const path = svg.append("g")
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
@@ -186,9 +193,10 @@ const createChart = function(className, condition, protocals) {
             .attr("stroke", function (d, i) {
                 return colors(i);
             })
-        // console.log(path.attr("stroke"))
-        
-        if (! isRevealed) { path.call(reveal) }
+
+        if (!isRevealed) {
+            path.call(reveal)
+        }
         svg.call(hover, path, data, x, y);
     }
     updateChart(false);
@@ -208,7 +216,7 @@ function addNewChart() {
     var newChartAttr = document.querySelector(".chooseAttr");
     var newChartProtocal = newChartAttr.elements.protocal.value;
     var newChartcondition = newChartAttr.elements.condition.value;
-    createChart("sub-"+chartNum, newChartcondition, [newChartProtocal]);
+    createChart("sub-" + chartNum, newChartcondition, [newChartProtocal]);
 }
 
 
@@ -216,7 +224,7 @@ const protocalArea = document.getElementById("protocalArea");
 const conditionArea = document.getElementById("conditionArea");
 const createInputHTML = (protocal, condition) => {
     const protocolHTML = protocal ? `<label><input name="protocal" type="radio" value="${protocal}"> <i>${protocal}</i></label>` : "";
-    const conditionHTML = condition ?  `<label><input name="condition" type="radio" value="${condition}"> <i>${condition}</i></label>`: "";
+    const conditionHTML = condition ? `<label><input name="condition" type="radio" value="${condition}"> <i>${condition}</i></label>` : "";
     protocalArea.innerHTML += protocolHTML;
     conditionArea.innerHTML += conditionHTML;
 }
