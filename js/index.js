@@ -22,6 +22,57 @@ const reveal = path => path.transition()
 function colors(i) {
     return ["steelblue", "orangered"][i]
 }
+function hover(svg, path, data, x, y) {
+
+    const pathStroke = path.attr("stroke");
+  
+    if ("ontouchstart" in document) svg
+        .style("-webkit-tap-highlight-color", "transparent")
+        .on("touchmove", moved)
+        .on("touchstart", entered)
+        .on("touchend", left)
+    else svg
+        .on("mousemove", moved)
+        .on("mouseenter", entered)
+        .on("mouseleave", left);
+  
+    const dot = svg.append("g")
+        .attr("display", "none");
+  
+    dot.append("circle")
+        .attr("r", 2.5);
+  
+    dot.append("text")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", "middle")
+        .attr("y", -8);
+  
+    function moved() {
+      d3.event.preventDefault();
+      const ym = y.invert(d3.event.layerY);
+      const xm = x.invert(d3.event.layerX);
+    //   console.log(xm, ym)
+      const i1 = d3.bisectLeft(data.dates, xm, 1);
+      const i0 = i1 - 1;
+      const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
+      const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
+      console.log(s)
+    //   path.attr("stroke", d => d === s ? pathStroke : "#ddd").filter(d => d === s).raise();
+      dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
+      dot.select("text").text(s.name);
+    }
+  
+    function entered() {
+    //   path.style("mix-blend-mode", null).attr("stroke", "#ddd");
+      dot.attr("display", null);
+    }
+  
+    function left() {
+    //   path.style("mix-blend-mode", "multiply").attr("stroke", pathStroke);
+      dot.attr("display", "none");
+    }
+}
 
 // set layout 
 var margin = ({
@@ -112,7 +163,8 @@ const createChart = function(className, condition, protocals) {
         svg.append("g")
             .call(yAxis);
         console.log(data.series)
-        svg.append("g")
+        
+        const path = svg.append("g")
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
             .attr("stroke-linejoin", "round")
@@ -126,6 +178,7 @@ const createChart = function(className, condition, protocals) {
                 return colors(i);
             })
             .call(reveal);
+        svg.call(hover, path, data, x, y);
     }
     updateChart();
 }
