@@ -203,17 +203,18 @@ const createChart = function (className, condition, protocals) {
         svg.call(hover, path, data, x, y);
         const smoothBox = document.getElementById("smooth")
         const smoothedData = data.series.map((it) => {
+            const ret = {}
             let miu = it.values[0]
-            it.values = it.values.map((it) => .125 * it + .875 * miu)
-            return it;
+            ret.values = it.values.map((it) => .125 * it + .875 * miu)
+            ret.name = it.name
+            return ret;
         })
         smoothBox.addEventListener("input", () => {
             isSmooth = !isSmooth
-
+            console.log(isSmooth ? smoothedData : data.series)
             mainSVG.selectAll('.line')
                 .data(isSmooth ? smoothedData : data.series)
                 .transition()
-                .duration(750)
                 .attr("d", d => line(d.values))
                 .attr("stroke", function (d, i) {
                     return colors(i);
