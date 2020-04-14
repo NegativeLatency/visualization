@@ -20,8 +20,10 @@ const reveal = path => path.transition()
     })
 
 function colors(i) {
-    return ["steelblue", "orangered"][i]
+    return d3.schemeCategory10[i]
 }
+
+let isSmooth = false;
 
 function hover(svg, path, data, x, y) {
 
@@ -189,6 +191,7 @@ const createChart = function (className, condition, protocals) {
             .data(data.series)
             .join("path")
             .style("mix-blend-mode", "multiply")
+            .attr("class", "line")
             .attr("d", d => line(d.values))
             .attr("stroke", function (d, i) {
                 return colors(i);
@@ -198,14 +201,35 @@ const createChart = function (className, condition, protocals) {
             path.call(reveal)
         }
         svg.call(hover, path, data, x, y);
+        const smoothBox = document.getElementById("smooth")
+        const smoothedData = data.series.map((it) => {
+            let miu = it.values[0]
+            it.values = it.values.map((it) => .125 * it + .875 * miu)
+            return it;
+        })
+        smoothBox.addEventListener("input", () => {
+            isSmooth = !isSmooth
+
+            mainSVG.selectAll('.line')
+                .data(isSmooth ? smoothedData : data.series)
+                .transition()
+                .duration(750)
+                .attr("d", d => line(d.values))
+                .attr("stroke", function (d, i) {
+                    return colors(i);
+                })
+            
+        })
+        return svg;
     }
-    updateChart(false);
+    const ret = updateChart(false);
 
     window.addEventListener("resize", updateChart, true)
+    return [ret, data];
 }
 const protocals = Object.keys(preparedData);
 const conditions = Object.keys(preparedData[protocals[0]]);
-createChart("main", conditions[0], protocals);
+const [mainSVG, seriesData] = createChart("main", conditions[0], protocals);
 
 // height *= 2;
 
@@ -235,3 +259,4 @@ for (const p of protocals) {
 for (const c of conditions) {
     createInputHTML(null, c);
 }
+
