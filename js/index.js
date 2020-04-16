@@ -47,8 +47,15 @@ function hover(svg, path, data, x, y) {
 
     dot.append("text")
         .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
-        .attr("text-anchor", "middle")
+        .attr("font-size", 12)
+        .attr("text-anchor", "left")
+        .attr("y", -20);
+
+    dot.append("text")
+        .attr("class", "latency")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 12)
+        .attr("text-anchor", "left")
         .attr("y", -8);
 
     function moved() {
@@ -61,7 +68,8 @@ function hover(svg, path, data, x, y) {
         const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
         path.attr("stroke", (d, i) => d === s ? colors(i) : "#ddd").filter(d => d === s).raise();
         dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
-        dot.select("text").text(`${s.name} ${s.values[i]}`);
+        dot.select("text").text("Protocal: " + s.name);
+        dot.select(".latency").text("RTT: " + Math.floor(s.values[i]) + " (ms)");
     }
 
     function entered() {
@@ -200,7 +208,6 @@ const createChart = function (className, condition, protocals) {
         if (!isRevealed) {
             path.call(reveal)
         }
-        svg.call(hover, path, data, x, y);
         const smoothBox = document.getElementById("smooth")
         const smoothedData = data.series.map((it) => {
             const ret = {}
@@ -219,8 +226,12 @@ const createChart = function (className, condition, protocals) {
                 .attr("stroke", function (d, i) {
                     return colors(i);
                 })
+        svg.call(hover, path, isSmooth ? smoothedDataObject : data, x, y);
             
         })
+        let smoothedDataObject = JSON.parse(JSON.stringify(data));
+        smoothedDataObject.series = smoothedData;
+        svg.call(hover, path, isSmooth ? smoothedDataObject : data, x, y);
         return svg;
     }
     const ret = updateChart(false);
