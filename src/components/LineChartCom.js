@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactEcharts from 'echarts-for-react';
+import '../css/charts.css';
 
 function LineChart(props) {
 
@@ -18,17 +19,30 @@ function LineChart(props) {
   const getOption = (data) => {
     return ({
       xAxis: {
-        type: 'category',
-        data: data.dates
+        type: 'time',
+        // data: data.dates
       },
       yAxis: {
         type: 'value'
       },
-      series: (isSmooth ? smoothedData : data).series.map( (val, idx) => ({name: val.name, data: val.values, type: 'line'})),
+      series: (isSmooth ? smoothedData : data).series.map( (val, idx) => ({
+        name: val.name, 
+        data: val.values.slice(0, props.dataRangeRight).map( (it, i) => [data.dates[i], it.toFixed(2)] ), 
+        type: 'line',
+        showSymbol: false,
+        emphasis: {
+          lineStyle: {
+            width: 4
+          }
+        },
+        lineStyle: {
+          width: 2
+        }
+      })),
       tooltip: {
         trigger: 'axis',
         showDelay: 0,
-        transitionDuration: 0.2
+        transitionDuration: 0.1
       },
       legend: {
         data: data.series.map(it => it.name),

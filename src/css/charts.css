@@ -1,0 +1,9 @@
+.line-chart {
+    height: 500px !important;
+}
+
+@media only screen and (max-width:750px) {
+    .line-chart {
+        height: 300px !important;
+    }
+}

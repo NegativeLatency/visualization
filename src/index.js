@@ -19,10 +19,11 @@ function getSpecData(condition, protocals) {
       res = {
           y: "latency (ms)",
           series: []
-      };
+      },
+      now = new Date().getTime();
 
   res.range = [0, preparedData[protocals[0]][condition].length]
-  res.dates = preparedData[protocals[0]][condition].map((it, idx) => idx)
+  res.dates = preparedData[protocals[0]][condition].map((it, idx) => now + 1000*idx)
   protocals.forEach(item => {
       let temp = preparedData[item][condition].map((it) => it.delay);
       res.series.push({
@@ -30,6 +31,7 @@ function getSpecData(condition, protocals) {
           values: temp
       });
   })
+  // console.log('res', res)
   return res;
 }
 
@@ -38,10 +40,34 @@ class Main extends React.Component {
     super(props);
     this.state = {
       data: preparedData,
+      dataRangeRight: 1,
       isSmooth: true,
       charts: [{condition: conditions[0], protocals: protocals}],
     }
     this.newChartInput = React.createRef();
+  }
+
+  componentDidMount() {
+    let interval = 1000;
+    this.timer = setInterval(() => {
+      this.setDataRange()
+    }, interval);;
+  }
+
+  componentWillUnmount() {
+    this.timer && clearInterval(this.timer);
+  }
+
+  setDataRange = () => {
+    let step = 50;
+    this.setState( state => {
+      let maxLength = state.data.RTMP.optimal.length;
+      if (state.dataRangeRight + step > maxLength) {
+        clearInterval(this.timer);
+        return {dataRangeRight: maxLength}
+      }
+      return {dataRangeRight: state.dataRangeRight + step};
+    });
   }
 
   fetchData = () => {
@@ -93,13 +119,16 @@ class Main extends React.Component {
           <label htmlFor='smooth'>Smooth data</label>
         </div>
         
-        {this.state.charts.map( (val, idx) => {
-          return <LineChartCom 
-            key={idx}
-            data={getSpecData(val.condition, val.protocals)}
-            isSmooth={this.state.isSmooth}
-          />
-        } )}
+        <div id='charts'>
+          {this.state.charts.map( (val, idx) => {
+            return <LineChartCom 
+              key={idx}
+              data={getSpecData(val.condition, val.protocals)}
+              dataRangeRight = {this.state.dataRangeRight}
+              isSmooth={this.state.isSmooth}
+            />
+          } )}
+        </div>
       </div>
       
     )
