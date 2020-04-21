@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import LineChartCom from './components/LineChartCom'
-
+import { Radio, Switch, Button  } from 'antd'
+import './css/index.css'
 
 const data = require('./assets/spectator-test-1.json');
 let preparedData = {};
@@ -35,6 +36,7 @@ function getSpecData(condition, protocals) {
   return res;
 }
 
+
 class Main extends React.Component {
   constructor(props) {
     super(props);
@@ -43,7 +45,10 @@ class Main extends React.Component {
       dataRangeRight: 1,
       isSmooth: true,
       charts: [{condition: conditions[0], protocals: protocals}],
+      condition: conditions[0],
+      protocal: protocals[0]
     }
+    
     this.newChartInput = React.createRef();
   }
 
@@ -81,43 +86,38 @@ class Main extends React.Component {
   }
 
   getNewChartInput = (e) => {
-    let input = this.newChartInput.current.elements;
     let newChart = {
-      condition: input.condition.value,
-      protocals: [input.protocal.value]
+      condition: this.state.condition,
+      protocals: [this.state.protocal]
     }
     this.setState(state => {
       return {charts: state.charts.concat(newChart)}
     })
   }
 
+
   render() {
     return (
       <div>
-        <div id='addChart-panel'>
-          <form id="chooseAttr" ref={this.newChartInput}>
-            <div id="protocalArea" className="chooseProtocal">
-              {protocals.map((val, idx) => {
-                return <label key={idx}><input name='protocal' type="radio" value={val} /><i>{val}</i></label>
-              })}
-            </div>
-            <div id="conditionArea" className="chooseCondition">
-              {conditions.map((val, idx) => {
-                return <label key={idx}><input name='condition' type="radio" value={val} /><i>{val}</i></label>
-              })}
-            </div>
-          </form>
-          <button className='add-btn' type='button' onClick={this.getNewChartInput}>Add a chart</button>
+        <div className="control-panel">
+          <div id='addChart-panel'>
+            <form id="chooseAttr" ref={this.newChartInput}>
+              <div id="protocalArea" className="chooseProtocal">
+                <Radio.Group options={protocals} value={this.state.protocal} onChange={(e) => {this.setState({protocal: e.target.value})}}/>
+              </div>
+              <div id="conditionArea" className="chooseCondition">
+                <Radio.Group options={conditions} value={this.state.condition} onChange={(e) => {this.setState({condition: e.target.value})}}/>
+              </div>
+            </form>
+            <Button className='add-btn' onClick={this.getNewChartInput}>Add a chart</Button>
+          </div>
+
+          <div id='checkbox-panel'>
+            <Switch onClick={this.toggleSmoothData} defaultChecked/>
+            <label>Smooth Data</label>
+          </div>
         </div>
 
-        <div id='checkbox-panel'>
-          <input 
-            type='checkbox'
-            value='Smooth data'
-            onChange={this.toggleSmoothData} 
-            defaultChecked/>
-          <label htmlFor='smooth'>Smooth data</label>
-        </div>
         
         <div id='charts'>
           {this.state.charts.map( (val, idx) => {
@@ -137,9 +137,6 @@ class Main extends React.Component {
 
 ReactDOM.render(
   <React.StrictMode>
-    <h1>
-      hello world
-    </h1>
     <Main />
   </React.StrictMode>,
   document.getElementById('root')

@@ -1,0 +1,16 @@
+@import "../../node_modules/antd/dist/antd.css";   
+
+.control-panel {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.add-btn {
+    align-self: center;
+}
+
+.chooseAttr {
+   display: flex; 
+}
