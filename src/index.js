@@ -14,14 +14,14 @@ data.forEach((it) => {
 console.log(preparedData);
 const protocals = Object.keys(preparedData);
 const conditions = Object.keys(preparedData[protocals[0]]);
+const now = new Date().getTime();
 
 function getSpecData(condition, protocals) {
   let times = [],
       res = {
           y: "latency (ms)",
           series: []
-      },
-      now = new Date().getTime();
+      };
 
   res.range = [0, preparedData[protocals[0]][condition].length]
   res.dates = preparedData[protocals[0]][condition].map((it, idx) => now + 1000*idx)
