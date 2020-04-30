@@ -17,14 +17,14 @@ tempData.forEach((it) => {
 console.log(preparedData);
 const protocals = Object.keys(preparedData);
 const conditions = ["Optimal", "worst", "low bandwidth", "high package loss", "high bandwidth"]
+const now = new Date().getTime();
 
 function getSpecData(preparedData) {
   let times = [],
       res = {
           y: "latency (ms)",
           series: []
-      },
-      now = new Date().getTime();
+      };
 
   res.range = [0, preparedData[protocals[0]]["optimal"].length]
   res.dates = preparedData[protocals[0]]["optimal"].map((it, idx) => now + 1000*idx)
