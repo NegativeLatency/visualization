@@ -4,18 +4,21 @@ import LineChartCom from './components/LineChartCom'
 import { Radio, Switch, Button  } from 'antd'
 import './css/index.css'
 
-const data = require('./assets/spectator-test-1.json');
+let data = require('./assets/spectator-tests.json');
+console.log(data)
+let tempData = data.map((it) => it[4])
 let preparedData = {};
-data.forEach((it) => {
+tempData.forEach((it) => {
     preparedData[it.type] = {
         optimal: it.data
     }
 });
+
 console.log(preparedData);
 const protocals = Object.keys(preparedData);
-const conditions = Object.keys(preparedData[protocals[0]]);
+const conditions = ["Optimal", "worst", "low bandwidth", "high package loss", "high bandwidth"]
 
-function getSpecData(condition, protocals) {
+function getSpecData(preparedData) {
   let times = [],
       res = {
           y: "latency (ms)",
@@ -23,10 +26,10 @@ function getSpecData(condition, protocals) {
       },
       now = new Date().getTime();
 
-  res.range = [0, preparedData[protocals[0]][condition].length]
-  res.dates = preparedData[protocals[0]][condition].map((it, idx) => now + 1000*idx)
+  res.range = [0, preparedData[protocals[0]]["optimal"].length]
+  res.dates = preparedData[protocals[0]]["optimal"].map((it, idx) => now + 1000*idx)
   protocals.forEach(item => {
-      let temp = preparedData[item][condition].map((it) => it.delay);
+      let temp = preparedData[item]["optimal"].map((it) => it.delay);
       res.series.push({
           name: item,
           values: temp
@@ -36,16 +39,24 @@ function getSpecData(condition, protocals) {
   return res;
 }
 
+const conditionMap = {
+  "Optimal": 0,
+  "worst": 5,
+  "high package loss": 1,
+  "low bandwidth": 3,
+  "high bandwidth": 4
+}
 
 class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       data: preparedData,
+      processedData: getSpecData(preparedData),
       dataRangeRight: 1,
       isSmooth: true,
-      charts: [{condition: conditions[0], protocals: protocals}],
-      condition: conditions[0],
+      charts: [{condition: "optimal", protocals: protocals}],
+      condition: "Optimal",
       protocal: protocals[0]
     }
     
@@ -95,6 +106,20 @@ class Main extends React.Component {
     })
   }
 
+  handleConditionChange = (e) => {
+    this.setState({condition: e.target.value});
+    console.log(e.target.value)
+    let tempData = data.map((it) => it[conditionMap[e.target.value]])
+    let preparedData = {};
+    tempData.forEach((it) => {
+        preparedData[it.type] = {
+            optimal: it.data
+        }
+    });
+    this.setState({processedData: getSpecData(preparedData)})
+
+  }
+
 
   render() {
     return (
@@ -106,7 +131,7 @@ class Main extends React.Component {
                 <Radio.Group options={protocals} value={this.state.protocal} onChange={(e) => {this.setState({protocal: e.target.value})}}/>
               </div>
               <div id="conditionArea" className="chooseCondition">
-                <Radio.Group options={conditions} value={this.state.condition} onChange={(e) => {this.setState({condition: e.target.value})}}/>
+                <Radio.Group options={conditions} value={this.state.condition} onChange={this.handleConditionChange}/>
               </div>
             </form>
             <Button className='add-btn' onClick={this.getNewChartInput}>Add a chart</Button>
@@ -123,7 +148,7 @@ class Main extends React.Component {
           {this.state.charts.map( (val, idx) => {
             return <LineChartCom 
               key={idx}
-              data={getSpecData(val.condition, val.protocals)}
+              data={this.state.processedData}
               dataRangeRight = {this.state.dataRangeRight}
               isSmooth={this.state.isSmooth}
             />
